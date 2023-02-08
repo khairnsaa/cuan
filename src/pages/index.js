@@ -1,8 +1,10 @@
 import Head from 'next/head'
-import { Box, Button, Card, CardContent, Container, Stack, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography } from '@mui/material'
 import styles from '../styles/Home.module.css'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
+import NorthIcon from '@mui/icons-material/North';
+import SouthIcon from '@mui/icons-material/South';
 
 const CardComponent = ({total_balance}) => {
   return (
@@ -27,26 +29,41 @@ const BudgetComponent = ({ icon, title}) => {
 
 const HistoryComponent= ({type, category, title, budget, date})=> {
     return (
-        <Card className={styles.card} sx={{display: 'flex'}}>
-            <CardContent style={{width: "100%"}}>
-                <Typography width="fit-content">{category}</Typography>
-                <Stack>
-                    <Typography width="fit-content">{title}</Typography>
-                    <Typography width="fit-content">{date}</Typography>
-                </Stack>
-                <Typography width="fit-content">{budget}</Typography>
-                <Typography width="fit-content">{type}</Typography>
-            </CardContent>
-        </Card>
+        <Grid 
+            container 
+            py="16px"
+            alignItems="center"
+            className={styles.historyCard}
+        >
+            <Grid item xs={3} textAlign="center">
+                <Typography variant='h4'>{category}</Typography>
+            </Grid>
+            <Grid item xs={4}>
+                <Typography>{title}</Typography>
+                <Typography variant='body2'>{date}</Typography>
+            </Grid>
+            <Grid item xs={3}>
+                <Typography variant='h6'>{budget}</Typography>
+            </Grid>
+            <Grid item xs={2} textAlign="center">
+                <Typography>
+                    {
+                        type === 'outcome' ? 
+                        <NorthIcon color='error' /> : 
+                        <SouthIcon color='success' />
+                    }
+                </Typography>
+            </Grid>
+        </Grid>
     )
 }
 
 export default function Home() {
     const dummyBudget = [
-        {icon: '🚗', title: 'Transport'},
-        {icon: '🍔', title: 'Food'},
-        {icon: '💻', title: 'PC'},
-        {icon: '👚', title: 'Apparel'},
+        {icon: '🚗', title: 'Transport', id: 1},
+        {icon: '🍔', title: 'Food', id: 2},
+        {icon: '💻', title: 'PC', id: 3},
+        {icon: '👚', title: 'Apparel', id: 3},
     ]
     return (
         <>
@@ -71,7 +88,7 @@ export default function Home() {
                 <Stack mt={2} direction="row" spacing={2}>
                     {
                         dummyBudget.map(budget => (
-                            <BudgetComponent icon={budget.icon} title={budget.title} />
+                            <BudgetComponent icon={budget.icon} title={budget.title} key={budget.key} />
                         ))
                     }
                     <Box className={styles.newBudget}>
@@ -82,6 +99,20 @@ export default function Home() {
             </Box>
             <Box py={2}>
                 <Typography variant='h6' children="History" />
+                <HistoryComponent  
+                    category='🍔' 
+                    type='outcome' 
+                    title="sushi"
+                    date="24-2-2023"
+                    budget="50.000" 
+                />
+                <HistoryComponent  
+                    category='🍔' 
+                    type='income' 
+                    title="sushi"
+                    date="24-2-2023"
+                    budget="50.000" 
+                />
                 <HistoryComponent  
                     category='🍔' 
                     type='outcome' 

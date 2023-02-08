@@ -32,3 +32,9 @@
   color: #fafafa;
   margin: 14px 0;
 }
+
+.historyCard {
+  border: 1px solid #fafafa;
+  border-radius: 16px;
+  margin: 1rem 0;
+}
