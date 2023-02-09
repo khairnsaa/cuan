@@ -15,3 +15,29 @@ body{
   background-color: var(--primary);
   color: var(--white);
 }
+
+header, footer{
+  display: flex;
+  justify-content: space-between;
+}
+
+header{
+  align-items: center;
+  padding: 1rem;
+}
+
+footer{
+  background-color: #001A2B;
+  padding: 16px;
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  box-shadow: 0 -10px 10px #3535351c;
+}
+
+.add{
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
