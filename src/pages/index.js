@@ -4,6 +4,8 @@ import styles from '../styles/Home.module.css'
 import AddIcon from '@mui/icons-material/Add';
 import NorthIcon from '@mui/icons-material/North';
 import SouthIcon from '@mui/icons-material/South';
+import FormDialog from '@/components/FormDialog';
+import { useState } from 'react';
 
 const CardComponent = ({total_balance}) => {
   return (
@@ -58,6 +60,11 @@ const HistoryComponent= ({type, category, title, budget, date})=> {
 }
 
 export default function Home() {
+    const [ open, setOpen ] = useState(false)
+
+    const handleClickOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
     const dummyBudget = [
         {icon: '🚗', title: 'Transport', id: 1},
         {icon: '🍔', title: 'Food', id: 2},
@@ -86,10 +93,13 @@ export default function Home() {
                                 <BudgetComponent icon={budget.icon} title={budget.title} key={budget.key} />
                             ))
                         }
-                        <Box className={styles.newBudget}>
-                            <Typography variant='h4'><AddIcon /></Typography>
-                            <Typography variant="body2" mt={1} textAlign='center' width="8ch">Add new Budget</Typography>
+                        <Box>
+                            <Button onClick={handleClickOpen} className={styles.newBudget}>
+                                <Typography variant='h4'><AddIcon /></Typography>
+                                <Typography variant="body2" mt={1} textAlign='center' width="9ch">Add new Budget</Typography>
+                            </Button>
                         </Box>
+                        <FormDialog open={open} onClose={handleClose} />
                     </Stack>
                 </Box>
                 <Box py={2}>

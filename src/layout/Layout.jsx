@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Dialog, Fab, Grid, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, Dialog, Fab, FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup, TextField, Typography } from "@mui/material";
 import HomeIcon from '@mui/icons-material/Home';
 import UpcomingIcon from '@mui/icons-material/Upcoming';
 import SavingsIcon from '@mui/icons-material/Savings';
@@ -23,11 +23,21 @@ const FormDialog = ({handleClose, open}) => {
     ]
     return (
         <Dialog onClose={handleClose} open={open}>
-            <Grid container spacing={2} sx={{
-                p: "16px"
-            }}>
-                <Grid item xs={12}>
+            <Grid container spacing={3} sx={{ p: "16px" }}>
+                <Grid item xs={12} mb="14px">
                     <Typography align="center" variant="h5" children="Add Form" />
+                </Grid>
+                <Grid xs={12} sx={{display: 'flex',justifyContent: 'center'}}>
+                    <FormControl>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="row-radio-buttons-group"
+                        >
+                            <FormControlLabel value="Income" control={<Radio />} label="Income" />
+                            <FormControlLabel value="Expense" control={<Radio />} label="Expense" />
+                        </RadioGroup>
+                    </FormControl>
                 </Grid>
                 <Grid item xs={12}>
                     <TextField fullWidth label="Title" variant="outlined" />
