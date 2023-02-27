@@ -3,8 +3,25 @@
     color: #fafafa;
 }
 
+.container{
+    border: 1px solid #fafafa;
+    padding: 8px 16px;
+    margin: 16px 0;
+    border-radius: 8px;
+}
+
 .flexCard{
     display: flex;
     justify-content: space-between;
     font-size: 12px;
+}
+
+.upcoming{
+    display: flex; 
+    border: 1px solid #fafafa;
+    justify-content: space-between;
+    padding: 16px;
+    align-items: center;
+    border-radius: 8px;
+    margin: 8px 0;
 }
