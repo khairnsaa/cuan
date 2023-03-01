@@ -11,16 +11,28 @@ import Link from "next/link";
 import React, { useState } from "react";
 import styles from '../styles/Home.module.css'
 import { MobileDatePicker } from "@mui/x-date-pickers";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { budgetAtom } from "@/recoil/atom/budgetAtom";
+import { transactionAtom } from "@/recoil/atom/transactionAtom";
+import moment from "moment/moment";
 
 const FormDialog = ({handleClose, open}) => {
     const [value, setValue] = useState(null);
+    const budgetList = useRecoilValue(budgetAtom)
+    const [transaction, setTransaction] = useState({
+        type: '',
+        name: '',
+        date: null,
+        category: ''
+    })
 
-    const categoryList = [
-        {label: 'food', value: 'food'},
-        {label: 'transport', value: 'transport'},
-        {label: 'entertainment', value: 'entertainment'},
-        {label: 'idk', value: 'idk'},
-    ]
+    const [transactionList, setTransactionList] = useRecoilState(transactionAtom)
+
+    const handleSubmit = () => {
+        setTransactionList(prevTrans => [...prevTrans, transaction])
+        localStorage.setItem('transactionList', JSON.stringify(transactionList))
+    }
+
     return (
         <Dialog onClose={handleClose} open={open}>
             <Grid container spacing={3} sx={{ p: "16px" }}>
@@ -29,18 +41,14 @@ const FormDialog = ({handleClose, open}) => {
                 </Grid>
                 <Grid xs={12} sx={{display: 'flex',justifyContent: 'center'}}>
                     <FormControl>
-                        <RadioGroup
-                            row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
-                        >
+                        <RadioGroup row name="type" onChange={e => setTransaction({...transaction, type: e.target.value})}>
                             <FormControlLabel value="Income" control={<Radio />} label="Income" />
                             <FormControlLabel value="Expense" control={<Radio />} label="Expense" />
                         </RadioGroup>
                     </FormControl>
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField fullWidth label="Title" variant="outlined" />
+                    <TextField fullWidth label="Title" variant="outlined" name="name" onChange={e => setTransaction({...transaction, name: e.target.value})} />
                 </Grid>
                 <Grid item xs={12}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -49,8 +57,9 @@ const FormDialog = ({handleClose, open}) => {
                             value={value}
                             onChange={(newValue) => {
                                 setValue(newValue);
+                                setTransaction({...transaction, date: moment(newValue).format("DD/MM/YYYY")})
                             }}
-                            renderInput={(params) => <TextField {...params} />}
+                            renderInput={(params) => <TextField {...params} name="date" />}
                         />
                     </LocalizationProvider>
                 </Grid>
@@ -58,12 +67,15 @@ const FormDialog = ({handleClose, open}) => {
                     <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={categoryList}
-                        renderInput={(params) => <TextField {...params} label="Category" />}
+                        options={budgetList}
+                        onChange={(event, newValue) => {
+                            setTransaction({...transaction, category: newValue.label})
+                        }}
+                        renderInput={(params) => <TextField {...params} name="category" label="Category" />}
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <Button fullWidth variant="contained">Save</Button>
+                    <Button fullWidth variant="contained" onClick={handleSubmit}>Save</Button>
                 </Grid>
             </Grid>
         </Dialog>
@@ -76,7 +88,7 @@ const Layout = ({children}) => {
     const handleClickOpen = () => setOpen(true);
     const handleClose = (value) => setOpen(false);
     return (
-        <React.Fragment className="navbar">
+        <Box className="navbar">
             <header className={styles.header}>
                 <Typography variant='h6' children="CUAN" />
                 <AccountCircleIcon />
@@ -102,7 +114,7 @@ const Layout = ({children}) => {
                 </Link>
             </footer>
             <FormDialog handleClose={handleClose} open={open} />
-        </React.Fragment>
+        </Box>
     );
 }
  

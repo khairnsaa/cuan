@@ -1,10 +1,13 @@
 import Layout from '@/layout/Layout'
 import '@/styles/globals.css'
+import { RecoilRoot } from 'recoil'
 
 export default function App({ Component, pageProps }) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <RecoilRoot>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </RecoilRoot>
   )
 }

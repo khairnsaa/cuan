@@ -1,11 +1,14 @@
 import Head from 'next/head'
-import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, CircularProgress, Container, Fab, Grid, Stack, Typography } from '@mui/material'
 import styles from '../styles/Home.module.css'
 import AddIcon from '@mui/icons-material/Add';
 import NorthIcon from '@mui/icons-material/North';
 import SouthIcon from '@mui/icons-material/South';
 import FormDialog from '@/components/FormDialog';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { budgetAtom } from '@/recoil/atom/budgetAtom';
+import { transactionAtom } from '@/recoil/atom/transactionAtom';
 
 const CardComponent = ({total_balance}) => {
   return (
@@ -19,9 +22,38 @@ const CardComponent = ({total_balance}) => {
 }
 
 const BudgetComponent = ({ icon, title}) => {
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const timer = useRef();
+    const handleButtonClick = () => {
+        if (!loading) {
+          setSuccess(false);
+          setLoading(true);
+          timer.current = window.setTimeout(() => {
+            setSuccess(true);
+            setLoading(false);
+          }, 2000);
+        }
+      }
     return (
         <Box className={styles.budgets}>
-            <Typography variant='h4'>{icon}</Typography>
+            <Box sx={{ m: 1, mt: 2, position: 'relative' }}>
+                <Box
+                sx={{bgcolor: "transparent"}}
+                onClick={handleButtonClick}>
+                <Typography variant='h4'>{icon}</Typography>
+                </Box>
+                <CircularProgress
+                size={60}
+                    variant="determinate" value={90}
+                    sx={{
+                    position: 'absolute',
+                    top: -10,
+                    left: -7,
+                    zIndex: 1,
+                    }}
+                />
+            </Box>
             <Typography mt={1} variant='body2'>{title}</Typography>
         </Box>
     )
@@ -60,7 +92,11 @@ const HistoryComponent= ({type, category, title, budget, date})=> {
 }
 
 export default function Home() {
+    const budgetList = useRecoilValue(budgetAtom)
+    const transactionList = useRecoilValue(transactionAtom)
     const [ open, setOpen ] = useState(false)
+    const [transactionData, setTransactionData] = useState([])
+    const [budgetData, setBudgetData] = useState([])
 
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -71,6 +107,18 @@ export default function Home() {
         {icon: '💻', title: 'PC', id: 3},
         {icon: '👚', title: 'Apparel', id: 3},
     ]
+
+    const getStoredItem = () => {
+        const serializedBudget = localStorage.getItem('budgetList');
+        const serializedTransaction = localStorage.getItem('transactionList');
+        setTransactionData(JSON.parse(serializedTransaction))
+        setBudgetData(JSON.parse(serializedBudget))
+    }
+
+    useEffect(() => {
+        getStoredItem()
+    }, [])
+
     return (
         <>
             <Head>
@@ -80,6 +128,7 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Container sx={{mb: 10}}>
+                {console.log(budgetData, transactionData)}
                 <Box>
                     <Typography variant='body2' children="Good Morning," />
                     <Typography variant='h6' children="Khairunnisa" />
@@ -89,8 +138,8 @@ export default function Home() {
                     <Typography variant='h6' children="Budgets" />
                     <Stack mt={2} direction="row" spacing={2}>
                         {
-                            dummyBudget.map(budget => (
-                                <BudgetComponent icon={budget.icon} title={budget.title} key={budget.key} />
+                            budgetList.map(budget => (
+                                <BudgetComponent icon={budget.icon} title={budget.label} key={budget.name} />
                             ))
                         }
                         <Box>
