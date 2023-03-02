@@ -8,47 +8,60 @@ import AddIcon from '@mui/icons-material/Add';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from '../styles/Home.module.css'
 import { MobileDatePicker } from "@mui/x-date-pickers";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { budgetAtom } from "@/recoil/atom/budgetAtom";
-import { transactionAtom } from "@/recoil/atom/transactionAtom";
 import moment from "moment/moment";
+import { transactionOutAtom } from "@/recoil/atom/transactionAtom";
 
-const FormDialog = ({handleClose, open}) => {
+export async function getStaticPath() {
+    // Fetch data from an API endpoint
+    const result = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
+    const data = await result.data;
+  
+    // Pass data as props to the component
+    return {
+      props: {
+        data,
+      },
+    };
+}
+
+const FormDialog = ({handleClose, open, data}) => {
     const [value, setValue] = useState(null);
+    const [type, setType] = useState('')
     const budgetList = useRecoilValue(budgetAtom)
-    const [transaction, setTransaction] = useState({
-        type: '',
+    const [transactionOut, setTransactionOut] = useState({
         name: '',
         date: null,
         category: ''
     })
 
-    const [transactionList, setTransactionList] = useRecoilState(transactionAtom)
+    const [transactionList, setTransactionList] = useRecoilState(transactionOutAtom)
 
     const handleSubmit = () => {
-        setTransactionList(prevTrans => [...prevTrans, transaction])
-        localStorage.setItem('transactionList', JSON.stringify(transactionList))
+        setTransactionList(prevTrans => [...prevTrans, transactionOut])
     }
 
     return (
         <Dialog onClose={handleClose} open={open}>
+            {console.log(budgetList)}
             <Grid container spacing={3} sx={{ p: "16px" }}>
                 <Grid item xs={12} mb="14px">
                     <Typography align="center" variant="h5" children="Add Form" />
                 </Grid>
                 <Grid xs={12} sx={{display: 'flex',justifyContent: 'center'}}>
                     <FormControl>
-                        <RadioGroup row name="type" onChange={e => setTransaction({...transaction, type: e.target.value})}>
+                        <RadioGroup row name="type" onChange={e => setType(e.target.value)}>
                             <FormControlLabel value="Income" control={<Radio />} label="Income" />
                             <FormControlLabel value="Expense" control={<Radio />} label="Expense" />
                         </RadioGroup>
                     </FormControl>
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField fullWidth label="Title" variant="outlined" name="name" onChange={e => setTransaction({...transaction, name: e.target.value})} />
+                    <TextField fullWidth label="Title" variant="outlined" name="name" onChange={e => setTransactionOut({...transactionOut, name: e.target.value})} />
                 </Grid>
                 <Grid item xs={12}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -57,23 +70,35 @@ const FormDialog = ({handleClose, open}) => {
                             value={value}
                             onChange={(newValue) => {
                                 setValue(newValue);
-                                setTransaction({...transaction, date: moment(newValue).format("DD/MM/YYYY")})
+                                setTransactionOut({...transactionOut, date: moment(newValue).format("DD/MM/YYYY")})
                             }}
                             renderInput={(params) => <TextField {...params} name="date" />}
                         />
                     </LocalizationProvider>
                 </Grid>
-                <Grid item xs={12}>
-                    <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={budgetList}
-                        onChange={(event, newValue) => {
-                            setTransaction({...transaction, category: newValue.label})
-                        }}
-                        renderInput={(params) => <TextField {...params} name="category" label="Category" />}
-                    />
-                </Grid>
+                {console.log(data)}
+                {
+                    type === 'Expense' ?
+                    <Grid item xs={12}>
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={budgetList}
+                            onChange={(event, newValue) => {
+                                setTransactionOut({...transactionOut, category: newValue.label})
+                            }}
+                            renderInput={(params) => <TextField {...params} name="category" label="Category" />}
+                        />
+                    </Grid> :
+                    <Grid item xs={12}>
+                        <Typography children={"Budget Allocation"} />
+                        {
+                            budgetList.map(budget => <TextField fullWidth sx={{my: 1}} label={budget.label} variant="outlined" name="name"/>)
+                        }
+                        
+                        
+                    </Grid>
+                }
                 <Grid item xs={12}>
                     <Button fullWidth variant="contained" onClick={handleSubmit}>Save</Button>
                 </Grid>

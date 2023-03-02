@@ -8,9 +8,24 @@ import FormDialog from '@/components/FormDialog';
 import { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { budgetAtom } from '@/recoil/atom/budgetAtom';
-import { transactionAtom } from '@/recoil/atom/transactionAtom';
+import { transactionAtom, transactionOutAtom } from '@/recoil/atom/transactionAtom';
+import axios from 'axios';
 
-const CardComponent = ({total_balance}) => {
+export async function getServerSideProps({ req, res }) {
+    // Fetch data from an API endpoint
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate');
+    const result = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
+    const data = await result.data;
+  
+    // Pass data as props to the component
+    return {
+      props: {
+        data,
+      },
+    };
+}
+
+const CardComponent = ({total_balance,}) => {
   return (
     <Card className={styles.card}>
         <CardContent>
@@ -91,9 +106,9 @@ const HistoryComponent= ({type, category, title, budget, date})=> {
     )
 }
 
-export default function Home() {
-    const budgetList = useRecoilValue(budgetAtom)
-    const transactionList = useRecoilValue(transactionAtom)
+export default function Home({ data }) {
+    const budgetList=  useRecoilValue(budgetAtom)
+    const transactionList = useRecoilValue(transactionOutAtom)
     const [ open, setOpen ] = useState(false)
     const [transactionData, setTransactionData] = useState([])
     const [budgetData, setBudgetData] = useState([])
@@ -108,16 +123,16 @@ export default function Home() {
         {icon: '👚', title: 'Apparel', id: 3},
     ]
 
-    const getStoredItem = () => {
-        const serializedBudget = localStorage.getItem('budgetList');
-        const serializedTransaction = localStorage.getItem('transactionList');
-        setTransactionData(JSON.parse(serializedTransaction))
-        setBudgetData(JSON.parse(serializedBudget))
-    }
+    // const getStoredItem = () => {
+    //     const serializedBudget = localStorage.getItem('budgetList');
+    //     const serializedTransaction = localStorage.getItem('transactionList');
+    //     setTransactionData(JSON.parse(serializedTransaction))
+    //     setBudgetData(JSON.parse(serializedBudget))
+    // }
 
-    useEffect(() => {
-        getStoredItem()
-    }, [])
+    // useEffect(() => {
+    //     getStoredItem()
+    // }, [])
 
     return (
         <>
@@ -128,17 +143,17 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Container sx={{mb: 10}}>
-                {console.log(budgetData, transactionData)}
                 <Box>
                     <Typography variant='body2' children="Good Morning," />
                     <Typography variant='h6' children="Khairunnisa" />
                 </Box>
+                {console.log(data.items)}
                 <CardComponent total_balance={"1.000.000"} />
                 <Box py={2} sx={{overflowX: "scroll"}}>
                     <Typography variant='h6' children="Budgets" />
                     <Stack mt={2} direction="row" spacing={2}>
                         {
-                            budgetList.map(budget => (
+                            data.items.map(budget => (
                                 <BudgetComponent icon={budget.icon} title={budget.label} key={budget.name} />
                             ))
                         }

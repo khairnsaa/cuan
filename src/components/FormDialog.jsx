@@ -1,6 +1,7 @@
 import { budgetAtom } from "@/recoil/atom/budgetAtom";
 import { Box, Button, Dialog, Grid, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 
 const FormDialog = ({open, onClose}) => {
@@ -8,20 +9,45 @@ const FormDialog = ({open, onClose}) => {
         label: '',
         icon: ''
     })
-    const [_, setBudgetList] = useRecoilState(budgetAtom)
+    const [budgetList, setBudgetList] = useRecoilState(budgetAtom)
 
-    const onAddBudget = () => {
-        console.log(budget)
-        setBudgetList(oldBudget => [...oldBudget, budget])
-        setBudget({
-            name: '',
-            icon: ''
-        })
-    }
+    // const onAddBudget = () => {
+    //     setBudgetList(oldBudget => [...oldBudget, budget])
+    //     setBudget({
+    //         name: '',
+    //         icon: ''
+    //     })
+    // }
+
+    const onAddBudget = async () => {
+        try {
+          const response = await axios.post('http://127.0.0.1:8090/api/collections/budgets/records', { 
+            label: budget.label,
+            icon: budget.icon
+          })
+          console.log(response)
+        } catch (error) {
+          console.error(error)
+        }
+      }
 
     const handleChange = (e) => {
         setBudget({...budget, [e.target.name]: e.target.value})
     }
+
+    const setToStorage = () => budgetList.length > 0 && window.localStorage.setItem('budgetList', JSON.stringify(budgetList))
+
+    // const getFromStorage = () => {
+    //     if(window !== undefined) {
+    //         const budgetRaw = window.localStorage.getItem('budgetList')
+    //         budgets.push(JSON.parse(budgetRaw))
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     setToStorage()
+    //     getFromStorage()
+    // }, [budgetList]);
 
     return (
         <Dialog onClose={onClose} open={open}>
