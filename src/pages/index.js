@@ -13,10 +13,9 @@ import axios from 'axios';
 
 export async function getServerSideProps({ req, res }) {
     // Fetch data from an API endpoint
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate');
-    const budgetRes = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
+    const budgetRes = await axios.get('https://cuan.fly.dev/api/collections/budgets/records');
     const dataBudget = await budgetRes.data;
-    const transactionRes = await axios.get('http://127.0.0.1:8090/api/collections/tempTransaction/records');
+    const transactionRes = await axios.get('https://cuan.fly.dev/api/collections/transactionTemp/records');
     const dataTransaction = await transactionRes.data;
   
     // Pass data as props to the component
@@ -40,6 +39,9 @@ const CardComponent = ({total_balance,}) => {
 }
 
 const BudgetComponent = ({ icon, title, amount, spent}) => {
+    const filterCategory = spent.filter(s => s.category === title)[0]?.amount || 0
+    const percentage = ((amount-filterCategory)/amount)*100
+
     return (
         <Box className={styles.budgets}>
             <Box sx={{ m: 1, mt: 2, position: 'relative' }}>
@@ -49,7 +51,7 @@ const BudgetComponent = ({ icon, title, amount, spent}) => {
                 </Box>
                 <CircularProgress
                 size={60}
-                    variant="determinate" value={90}
+                    variant="determinate" value={percentage}
                     sx={{
                     position: 'absolute',
                     top: -10,
@@ -59,13 +61,15 @@ const BudgetComponent = ({ icon, title, amount, spent}) => {
                 />
             </Box>
             <Typography mt={1} variant='body2'>{title}</Typography>
-            <Typography mt={1} sx={{fontSize: "12px"}} variant='body2'>{spent.Food} /{amount}</Typography>
+            <Typography mt={1} sx={{fontSize: "10px"}} variant='body2'>{filterCategory}</Typography>
+            <Typography mt={1} sx={{fontSize: "12px"}} variant='body2'>/{amount}</Typography>
         </Box>
     )
 }
 
 
-const HistoryComponent= ({type, category, title, budget, date})=> {
+const HistoryComponent= ({type, category, title, budget, date, fetch})=> {
+    const filterCategory = fetch.filter(budget => budget.label===category)[0]?.icon || "?"
     return (
         <Grid 
             container 
@@ -74,7 +78,7 @@ const HistoryComponent= ({type, category, title, budget, date})=> {
             className={styles.historyCard}
         >
             <Grid item xs={3} textAlign="center">
-                <Typography variant='h4'>{category}</Typography>
+                <Typography variant='h4'>{filterCategory}</Typography>
             </Grid>
             <Grid item xs={4}>
                 <Typography>{title}</Typography>
@@ -102,14 +106,17 @@ export default function Home({ dataBudget, dataTransaction }) {
     const [ open, setOpen ] = useState(false)
     const [transactionData, setTransactionData] = useState([])
     const [budgetData, setBudgetData] = useState([])
-    const [spentBudget, setSpentBudget] = useState({food: 0})
+    const [spentBudget, setSpentBudget] = useState([])
 
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     useEffect(() => {
         dataTransaction.items.map(trans => {
-            if (trans.type === "Expense") setSpentBudget({...spentBudget ,[trans.category]: trans.amount })
+            if (trans.type === "Expense") setSpentBudget([
+                ...spentBudget, 
+                { category: trans.category, amount: trans.amount }
+            ])
         })
     }, [])
 
@@ -138,6 +145,7 @@ export default function Home({ dataBudget, dataTransaction }) {
                                     amount={budget.amount} 
                                     spent={spentBudget}
                                     key={budget.id} 
+                                    transaction={dataTransaction}
                                 />
                             ))
                         }
@@ -155,7 +163,8 @@ export default function Home({ dataBudget, dataTransaction }) {
                     {
                         dataTransaction.items.map(trans => (
                             <HistoryComponent  
-                                category={'🍔'} 
+                                fetch={dataBudget.items}
+                                category={trans.category} 
                                 type={trans.type} 
                                 title={trans.title}
                                 date="24-2-2023"

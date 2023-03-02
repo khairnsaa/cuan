@@ -22,7 +22,7 @@ const FormDialog = ({open, onClose}) => {
 
     const onAddBudget = async () => {
         try {
-          const response = await axios.post('http://127.0.0.1:8090/api/collections/budgets/records', { 
+          const response = await axios.post('https://cuan.fly.dev/api/collections/budgets/records', { 
             label: budget.label,
             icon: budget.icon,
             amount: budget.amount
@@ -31,7 +31,7 @@ const FormDialog = ({open, onClose}) => {
         } catch (error) {
           console.error(error)
         }
-      }
+    }
 
     const handleChange = (e) => {
         setBudget({...budget, [e.target.name]: e.target.value})

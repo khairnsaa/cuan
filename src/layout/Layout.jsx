@@ -15,11 +15,12 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { budgetAtom } from "@/recoil/atom/budgetAtom";
 import moment from "moment/moment";
 import { transactionOutAtom } from "@/recoil/atom/transactionAtom";
+import axios from "axios";
 
 export async function getStaticPath() {
     // Fetch data from an API endpoint
     const result = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
-    const data = await result.data;
+    const data = await result;
   
     // Pass data as props to the component
     return {
@@ -41,8 +42,20 @@ const FormDialog = ({handleClose, open, data}) => {
 
     const [transactionList, setTransactionList] = useRecoilState(transactionOutAtom)
 
-    const handleSubmit = () => {
-        setTransactionList(prevTrans => [...prevTrans, transactionOut])
+    const handleSubmit = async () => {
+        // setTransactionList(prevTrans => [...prevTrans, transactionOut])
+        // try {
+        //     const response = await axios.post('http://127.0.0.1:8090/api/collections/tempTransaction/records', { 
+        //       type: type,
+        //       title: budget.name,
+        //       amount: budget.amount,
+        //       category: budget.category
+        //     })
+        //     console.log(response)
+        //   } catch (error) {
+        //     console.error(error)
+        //   }
+        console.log(type, transactionOut)
     }
 
     return (
@@ -75,7 +88,19 @@ const FormDialog = ({handleClose, open, data}) => {
                         />
                     </LocalizationProvider>
                 </Grid>
-                {
+                <Grid item xs={12}>
+                    {console.log(data)}
+                    <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={data}
+                        onChange={(event, newValue) => {
+                            setTransactionOut({...transactionOut, category: newValue.label})
+                        }}
+                        renderInput={(params) => <TextField {...params} name="category" label="Category" />}
+                    />
+                </Grid>
+                {/* {
                     type === 'Expense' ?
                     <Grid item xs={12}>
                         <Autocomplete
@@ -96,7 +121,7 @@ const FormDialog = ({handleClose, open, data}) => {
                         
                         
                     </Grid>
-                }
+                } */}
                 <Grid item xs={12}>
                     <Button fullWidth variant="contained" onClick={handleSubmit}>Save</Button>
                 </Grid>
