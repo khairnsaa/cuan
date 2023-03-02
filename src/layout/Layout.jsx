@@ -47,7 +47,6 @@ const FormDialog = ({handleClose, open, data}) => {
 
     return (
         <Dialog onClose={handleClose} open={open}>
-            {console.log(budgetList)}
             <Grid container spacing={3} sx={{ p: "16px" }}>
                 <Grid item xs={12} mb="14px">
                     <Typography align="center" variant="h5" children="Add Form" />
@@ -76,7 +75,6 @@ const FormDialog = ({handleClose, open, data}) => {
                         />
                     </LocalizationProvider>
                 </Grid>
-                {console.log(data)}
                 {
                     type === 'Expense' ?
                     <Grid item xs={12}>

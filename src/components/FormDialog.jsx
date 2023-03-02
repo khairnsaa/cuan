@@ -7,7 +7,8 @@ import { useRecoilState } from "recoil";
 const FormDialog = ({open, onClose}) => {
     const [budget, setBudget] = useState({
         label: '',
-        icon: ''
+        icon: '',
+        amount: '',
     })
     const [budgetList, setBudgetList] = useRecoilState(budgetAtom)
 
@@ -23,7 +24,8 @@ const FormDialog = ({open, onClose}) => {
         try {
           const response = await axios.post('http://127.0.0.1:8090/api/collections/budgets/records', { 
             label: budget.label,
-            icon: budget.icon
+            icon: budget.icon,
+            amount: budget.amount
           })
           console.log(response)
         } catch (error) {
@@ -34,20 +36,6 @@ const FormDialog = ({open, onClose}) => {
     const handleChange = (e) => {
         setBudget({...budget, [e.target.name]: e.target.value})
     }
-
-    const setToStorage = () => budgetList.length > 0 && window.localStorage.setItem('budgetList', JSON.stringify(budgetList))
-
-    // const getFromStorage = () => {
-    //     if(window !== undefined) {
-    //         const budgetRaw = window.localStorage.getItem('budgetList')
-    //         budgets.push(JSON.parse(budgetRaw))
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     setToStorage()
-    //     getFromStorage()
-    // }, [budgetList]);
 
     return (
         <Dialog onClose={onClose} open={open}>
@@ -60,6 +48,9 @@ const FormDialog = ({open, onClose}) => {
                 </Grid>
                 <Grid item xs={12}>
                     <TextField fullWidth label="Budget Icon 💡" variant="outlined" name="icon" onChange={handleChange} />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField fullWidth label="Amount" variant="outlined" name="amount" onChange={handleChange} />
                 </Grid>
                 <Grid item xs={12}>
                     <Box sx={{display: 'flex', justifyContent: 'center'}}>

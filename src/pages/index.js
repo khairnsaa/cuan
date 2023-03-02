@@ -14,13 +14,16 @@ import axios from 'axios';
 export async function getServerSideProps({ req, res }) {
     // Fetch data from an API endpoint
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate');
-    const result = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
-    const data = await result.data;
+    const budgetRes = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
+    const dataBudget = await budgetRes.data;
+    const transactionRes = await axios.get('http://127.0.0.1:8090/api/collections/tempTransaction/records');
+    const dataTransaction = await transactionRes.data;
   
     // Pass data as props to the component
     return {
       props: {
-        data,
+        dataBudget,
+        dataTransaction,
       },
     };
 }
@@ -36,26 +39,12 @@ const CardComponent = ({total_balance,}) => {
   )
 }
 
-const BudgetComponent = ({ icon, title}) => {
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const timer = useRef();
-    const handleButtonClick = () => {
-        if (!loading) {
-          setSuccess(false);
-          setLoading(true);
-          timer.current = window.setTimeout(() => {
-            setSuccess(true);
-            setLoading(false);
-          }, 2000);
-        }
-      }
+const BudgetComponent = ({ icon, title, amount, spent}) => {
     return (
         <Box className={styles.budgets}>
             <Box sx={{ m: 1, mt: 2, position: 'relative' }}>
                 <Box
-                sx={{bgcolor: "transparent"}}
-                onClick={handleButtonClick}>
+                sx={{bgcolor: "transparent"}}>
                 <Typography variant='h4'>{icon}</Typography>
                 </Box>
                 <CircularProgress
@@ -70,6 +59,7 @@ const BudgetComponent = ({ icon, title}) => {
                 />
             </Box>
             <Typography mt={1} variant='body2'>{title}</Typography>
+            <Typography mt={1} sx={{fontSize: "12px"}} variant='body2'>{spent.Food} /{amount}</Typography>
         </Box>
     )
 }
@@ -96,7 +86,7 @@ const HistoryComponent= ({type, category, title, budget, date})=> {
             <Grid item xs={2} textAlign="center">
                 <Typography>
                     {
-                        type === 'outcome' ? 
+                        type === 'Expense' ? 
                         <NorthIcon color='error' /> : 
                         <SouthIcon color='success' />
                     }
@@ -106,33 +96,22 @@ const HistoryComponent= ({type, category, title, budget, date})=> {
     )
 }
 
-export default function Home({ data }) {
+export default function Home({ dataBudget, dataTransaction }) {
     const budgetList=  useRecoilValue(budgetAtom)
     const transactionList = useRecoilValue(transactionOutAtom)
     const [ open, setOpen ] = useState(false)
     const [transactionData, setTransactionData] = useState([])
     const [budgetData, setBudgetData] = useState([])
+    const [spentBudget, setSpentBudget] = useState({food: 0})
 
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const dummyBudget = [
-        {icon: '🚗', title: 'Transport', id: 1},
-        {icon: '🍔', title: 'Food', id: 2},
-        {icon: '💻', title: 'PC', id: 3},
-        {icon: '👚', title: 'Apparel', id: 3},
-    ]
-
-    // const getStoredItem = () => {
-    //     const serializedBudget = localStorage.getItem('budgetList');
-    //     const serializedTransaction = localStorage.getItem('transactionList');
-    //     setTransactionData(JSON.parse(serializedTransaction))
-    //     setBudgetData(JSON.parse(serializedBudget))
-    // }
-
-    // useEffect(() => {
-    //     getStoredItem()
-    // }, [])
+    useEffect(() => {
+        dataTransaction.items.map(trans => {
+            if (trans.type === "Expense") setSpentBudget({...spentBudget ,[trans.category]: trans.amount })
+        })
+    }, [])
 
     return (
         <>
@@ -147,14 +126,19 @@ export default function Home({ data }) {
                     <Typography variant='body2' children="Good Morning," />
                     <Typography variant='h6' children="Khairunnisa" />
                 </Box>
-                {console.log(data.items)}
                 <CardComponent total_balance={"1.000.000"} />
                 <Box py={2} sx={{overflowX: "scroll"}}>
                     <Typography variant='h6' children="Budgets" />
                     <Stack mt={2} direction="row" spacing={2}>
                         {
-                            data.items.map(budget => (
-                                <BudgetComponent icon={budget.icon} title={budget.label} key={budget.name} />
+                            dataBudget.items.map(budget => (
+                                <BudgetComponent 
+                                    icon={budget.icon} 
+                                    title={budget.label} 
+                                    amount={budget.amount} 
+                                    spent={spentBudget}
+                                    key={budget.id} 
+                                />
                             ))
                         }
                         <Box>
@@ -168,27 +152,18 @@ export default function Home({ data }) {
                 </Box>
                 <Box py={2}>
                     <Typography variant='h6' children="History" />
-                    <HistoryComponent  
-                        category='🍔' 
-                        type='outcome' 
-                        title="sushi"
-                        date="24-2-2023"
-                        budget="50.000" 
-                    />
-                    <HistoryComponent  
-                        category='🍔' 
-                        type='income' 
-                        title="sushi"
-                        date="24-2-2023"
-                        budget="50.000" 
-                    />
-                    <HistoryComponent  
-                        category='🍔' 
-                        type='outcome' 
-                        title="sushi"
-                        date="24-2-2023"
-                        budget="50.000" 
-                    />
+                    {
+                        dataTransaction.items.map(trans => (
+                            <HistoryComponent  
+                                category={'🍔'} 
+                                type={trans.type} 
+                                title={trans.title}
+                                date="24-2-2023"
+                                budget={trans.amount}
+                            />
+                        ))
+                    }
+                    
                 </Box>
             </Container>
         </>
