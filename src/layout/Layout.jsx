@@ -17,45 +17,57 @@ import moment from "moment/moment";
 import { transactionOutAtom } from "@/recoil/atom/transactionAtom";
 import axios from "axios";
 
-export async function getStaticPath() {
-    // Fetch data from an API endpoint
-    const result = await axios.get('http://127.0.0.1:8090/api/collections/budgets/records');
-    const data = await result;
-  
-    // Pass data as props to the component
-    return {
-      props: {
-        data,
-      },
-    };
-}
-
 const FormDialog = ({handleClose, open, data}) => {
     const [value, setValue] = useState(null);
     const [type, setType] = useState('')
-    const budgetList = useRecoilValue(budgetAtom)
+    const [budgetList, setBudgetList] = useState([])
     const [transactionOut, setTransactionOut] = useState({
         name: '',
         date: null,
-        category: ''
+        category: '',
+        amount: ''
     })
 
     const [transactionList, setTransactionList] = useRecoilState(transactionOutAtom)
 
+    const fetchCategory = async () => {
+        const result = await axios.get('https://cuan.fly.dev/api/collections/budgets/records');
+        const data = await result.data
+        setBudgetList(data.items)
+    }
+
+    useEffect(  () => {
+        fetchCategory()
+    }, [])
+
+    // const handleSubmit = async () => {
+    //     try {
+    //         const response = await axios.post('https://cuan.fly.dev/api/collections/transactionTemp/records', { 
+    //           type: type,
+    //           title: budget.name,
+    //           amount: budget.amount,
+    //           category: budget.category
+    //         })
+    //         console.log(response)
+    //         console.log('123')
+    //     } catch (error) {
+    //         console.error(error)
+    //     }
+    // }
+
     const handleSubmit = async () => {
-        // setTransactionList(prevTrans => [...prevTrans, transactionOut])
-        // try {
-        //     const response = await axios.post('http://127.0.0.1:8090/api/collections/tempTransaction/records', { 
-        //       type: type,
-        //       title: budget.name,
-        //       amount: budget.amount,
-        //       category: budget.category
-        //     })
-        //     console.log(response)
-        //   } catch (error) {
-        //     console.error(error)
-        //   }
-        console.log(type, transactionOut)
+        try {
+          const response = await axios.post('https://cuan.fly.dev/api/collections/transactionTemp/records', { 
+            type: type,
+            title: transactionOut.name,
+            amount: transactionOut.amount || "-",
+            category: transactionOut.category,
+            date: transactionOut.date
+          })
+          console.log(response)
+        } catch (error) {
+          console.error(error)
+        }
     }
 
     return (
@@ -89,16 +101,18 @@ const FormDialog = ({handleClose, open, data}) => {
                     </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12}>
-                    {console.log(data)}
                     <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={data}
+                        options={budgetList}
                         onChange={(event, newValue) => {
                             setTransactionOut({...transactionOut, category: newValue.label})
                         }}
                         renderInput={(params) => <TextField {...params} name="category" label="Category" />}
                     />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField fullWidth label="Amount" variant="outlined" name="amount" onChange={e => setTransactionOut({...transactionOut, amount: e.target.value})} />
                 </Grid>
                 {/* {
                     type === 'Expense' ?

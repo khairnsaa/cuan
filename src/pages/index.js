@@ -39,8 +39,13 @@ const CardComponent = ({total_balance,}) => {
 }
 
 const BudgetComponent = ({ icon, title, amount, spent}) => {
+    let currAmount;
+    currAmount === undefined ? currAmount = 0 : currAmount =currAmount
+    console.log(currAmount)
     const filterCategory = spent.filter(s => s.category === title)[0]?.amount || 0
-    const percentage = ((amount-filterCategory)/amount)*100
+    currAmount = currAmount+Number(filterCategory)
+    const percentage = ((amount-currAmount)/Number(amount))*100
+    // const percentage = ((amountBudget-filterCategory)/amount)*100
 
     return (
         <Box className={styles.budgets}>
@@ -61,7 +66,7 @@ const BudgetComponent = ({ icon, title, amount, spent}) => {
                 />
             </Box>
             <Typography mt={1} variant='body2'>{title}</Typography>
-            <Typography mt={1} sx={{fontSize: "10px"}} variant='body2'>{filterCategory}</Typography>
+            <Typography mt={1} sx={{fontSize: "10px"}} variant='body2'>{currAmount}</Typography>
             <Typography mt={1} sx={{fontSize: "12px"}} variant='body2'>/{amount}</Typography>
         </Box>
     )
