@@ -40,31 +40,20 @@ const FormDialog = ({handleClose, open, data}) => {
         fetchCategory()
     }, [])
 
-    // const handleSubmit = async () => {
-    //     try {
-    //         const response = await axios.post('https://cuan.fly.dev/api/collections/transactionTemp/records', { 
-    //           type: type,
-    //           title: budget.name,
-    //           amount: budget.amount,
-    //           category: budget.category
-    //         })
-    //         console.log(response)
-    //         console.log('123')
-    //     } catch (error) {
-    //         console.error(error)
-    //     }
-    // }
-
     const handleSubmit = async () => {
         try {
-          const response = await axios.post('https://cuan.fly.dev/api/collections/transactionTemp/records', { 
-            type: type,
-            title: transactionOut.name,
-            amount: transactionOut.amount || "-",
-            category: transactionOut.category,
-            date: transactionOut.date
-          })
-          console.log(response)
+            const response = await axios.post('https://cuan.fly.dev/api/collections/transactionTemp/records', { 
+                type: type,
+                title: transactionOut.name,
+                amount: transactionOut.amount || "-",
+                category: transactionOut.category,
+                date: transactionOut.date
+            })
+            const budget= budgetList.filter(budget => budget.label === transactionOut.category)[0]
+            const res = await axios.patch(`https://cuan.fly.dev/api/collections/budgets/records/${budget.id}`, { 
+                spent: Number(budget.spent) + Number(transactionOut.amount) , 
+            });
+            console.log(res, response)
         } catch (error) {
           console.error(error)
         }
@@ -100,17 +89,20 @@ const FormDialog = ({handleClose, open, data}) => {
                         />
                     </LocalizationProvider>
                 </Grid>
-                <Grid item xs={12}>
-                    <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={budgetList}
-                        onChange={(event, newValue) => {
-                            setTransactionOut({...transactionOut, category: newValue.label})
-                        }}
-                        renderInput={(params) => <TextField {...params} name="category" label="Category" />}
-                    />
-                </Grid>
+                {
+                    type === 'Expense' &&
+                    <Grid item xs={12}>
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={budgetList}
+                            onChange={(event, newValue) => {
+                                setTransactionOut({...transactionOut, category: newValue.label})
+                            }}
+                            renderInput={(params) => <TextField {...params} name="category" label="Category" />}
+                        />
+                    </Grid>
+                }
                 <Grid item xs={12}>
                     <TextField fullWidth label="Amount" variant="outlined" name="amount" onChange={e => setTransactionOut({...transactionOut, amount: e.target.value})} />
                 </Grid>

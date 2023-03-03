@@ -1,17 +1,18 @@
 import Head from 'next/head'
-import { Box, Button, Card, CardContent, CircularProgress, Container, Fab, Grid, Stack, Typography } from '@mui/material'
+import { 
+    Box, Button, Card, CardContent, 
+    CircularProgress, Container, Grid, 
+    Pagination, Stack, Typography 
+} from '@mui/material'
 import styles from '../styles/Home.module.css'
 import AddIcon from '@mui/icons-material/Add';
 import NorthIcon from '@mui/icons-material/North';
 import SouthIcon from '@mui/icons-material/South';
 import FormDialog from '@/components/FormDialog';
-import { useEffect, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { budgetAtom } from '@/recoil/atom/budgetAtom';
-import { transactionAtom, transactionOutAtom } from '@/recoil/atom/transactionAtom';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-export async function getServerSideProps({ req, res }) {
+export async function getServerSideProps() {
     // Fetch data from an API endpoint
     const budgetRes = await axios.get('https://cuan.fly.dev/api/collections/budgets/records');
     const dataBudget = await budgetRes.data;
@@ -39,13 +40,7 @@ const CardComponent = ({total_balance,}) => {
 }
 
 const BudgetComponent = ({ icon, title, amount, spent}) => {
-    let currAmount;
-    currAmount === undefined ? currAmount = 0 : currAmount =currAmount
-    console.log(currAmount)
-    const filterCategory = spent.filter(s => s.category === title)[0]?.amount || 0
-    currAmount = currAmount+Number(filterCategory)
-    const percentage = ((amount-currAmount)/Number(amount))*100
-    // const percentage = ((amountBudget-filterCategory)/amount)*100
+    const percentage = ((amount-spent)/Number(amount))*100
 
     return (
         <Box className={styles.budgets}>
@@ -66,7 +61,7 @@ const BudgetComponent = ({ icon, title, amount, spent}) => {
                 />
             </Box>
             <Typography mt={1} variant='body2'>{title}</Typography>
-            <Typography mt={1} sx={{fontSize: "10px"}} variant='body2'>{currAmount}</Typography>
+            <Typography mt={1} sx={{fontSize: "10px"}} variant='body2'>{spent}</Typography>
             <Typography mt={1} sx={{fontSize: "12px"}} variant='body2'>/{amount}</Typography>
         </Box>
     )
@@ -106,12 +101,12 @@ const HistoryComponent= ({type, category, title, budget, date, fetch})=> {
 }
 
 export default function Home({ dataBudget, dataTransaction }) {
-    const budgetList=  useRecoilValue(budgetAtom)
-    const transactionList = useRecoilValue(transactionOutAtom)
     const [ open, setOpen ] = useState(false)
-    const [transactionData, setTransactionData] = useState([])
-    const [budgetData, setBudgetData] = useState([])
     const [spentBudget, setSpentBudget] = useState([])
+    const [page, setPage] = useState(1)
+    const [columnPerPage, setColumnPerPage] = useState(5)
+    const [startColumn, setStartColumn] = useState(0)
+    const totalPages = Math.ceil(dataTransaction.items?.length / 5)
 
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -124,6 +119,17 @@ export default function Home({ dataBudget, dataTransaction }) {
             ])
         })
     }, [])
+
+    const handleChangePage = (event, value) => {
+        if(page < value) {
+            setColumnPerPage(columnPerPage + 5)
+            setStartColumn(startColumn + 5)
+        } else if(page > value) {
+            setColumnPerPage(columnPerPage - 5)
+            setStartColumn(startColumn - 5)
+        }
+        setPage(value)
+    }
 
     return (
         <>
@@ -148,7 +154,7 @@ export default function Home({ dataBudget, dataTransaction }) {
                                     icon={budget.icon} 
                                     title={budget.label} 
                                     amount={budget.amount} 
-                                    spent={spentBudget}
+                                    spent={budget.spent}
                                     key={budget.id} 
                                     transaction={dataTransaction}
                                 />
@@ -166,7 +172,7 @@ export default function Home({ dataBudget, dataTransaction }) {
                 <Box py={2}>
                     <Typography variant='h6' children="History" />
                     {
-                        dataTransaction.items.map(trans => (
+                        dataTransaction.items.slice(startColumn, columnPerPage).map(trans => (
                             <HistoryComponent  
                                 fetch={dataBudget.items}
                                 category={trans.category} 
@@ -174,10 +180,18 @@ export default function Home({ dataBudget, dataTransaction }) {
                                 title={trans.title}
                                 date="24-2-2023"
                                 budget={trans.amount}
+                                key={trans.id}
                             />
                         ))
                     }
-                    
+                    <Pagination 
+                        count={totalPages} page={page} 
+                        onChange={handleChangePage} 
+                        sx={{"& .MuiPaginationItem-root": {
+                            color: "#fff"
+                        }}}
+                        variant="outlined" shape="rounded"
+                    />
                 </Box>
             </Container>
         </>
