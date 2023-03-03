@@ -30,10 +30,10 @@ export async function getServerSideProps() {
 
 const CardComponent = ({total_balance,}) => {
   return (
-    <Card className={styles.card}>
+    <Card className={styles.cardBalance}>
         <CardContent>
             <Typography variant="body2" children="Total Balance" />
-            <Typography variant='h4' mt={1}>Rp {total_balance}</Typography>
+            <Typography variant='h4' mt={1}>{total_balance}</Typography>
         </CardContent>
     </Card>
   )
@@ -144,7 +144,7 @@ export default function Home({ dataBudget, dataTransaction }) {
                     <Typography variant='body2' children="Good Morning," />
                     <Typography variant='h6' children="Khairunnisa" />
                 </Box>
-                <CardComponent total_balance={"1.000.000"} />
+                <CardComponent total_balance={"Coming Soon"} />
                 <Box py={2} sx={{overflowX: "scroll"}}>
                     <Typography variant='h6' children="Budgets" />
                     <Stack mt={2} direction="row" spacing={2}>
@@ -161,7 +161,7 @@ export default function Home({ dataBudget, dataTransaction }) {
                             ))
                         }
                         <Box>
-                            <Button onClick={handleClickOpen} className={styles.newBudget}>
+                            <Button onClick={handleClickOpen} className={styles.newBudgetBtn}>
                                 <Typography variant='h4'><AddIcon /></Typography>
                                 <Typography variant="body2" mt={1} textAlign='center' width="9ch">Add new Budget</Typography>
                             </Button>

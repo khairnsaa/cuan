@@ -14,7 +14,8 @@ const UpcomingPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Container sx={{p: "16px"}}>
-                <Button variant="outlined" fullWidth className={styles.btn}>
+                <Typography textAlign="center" variant="h4">Coming Soon</Typography>
+                {/* <Button variant="outlined" fullWidth className={styles.btn}>
                     <Box width='100%' display='flex' alignItems='center' justifyContent='space-between'>
                         <Typography whiteSpace='nowrap' fontSize="12px">Create New Schedulled Payment</Typography>
                         <AddIcon />
@@ -23,7 +24,7 @@ const UpcomingPage = () => {
                 <Box mt="24px">
                     <Typography variant="h5" children="Upcoming" />
                     <UpcomingCard />
-                </Box>
+                </Box> */}
             </Container>
         </>
     );

@@ -11,48 +11,9 @@ const StatsPage = () => {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            {/* <Grid container spacing={2}>
-                <Grid item xs={12} mb={2}>
-                    <Typography variant="h5" align="center">This Month Recap</Typography>
-                </Grid>
-                <Grid item xs={6} sx={{
-                    border: '1px solid white',
-                    p: '16px',
-                    borderRadius: '8px',
-                    // m: '8px 16px'
-                }}>
-                    <Typography align="center" children={"You Spend"} />
-                    <Typography align="center" fontWeight="bold" children={`Rp. 200.000`} />
-                </Grid>
-                <Grid item xs={6} sx={{
-                    border: '1px solid white',
-                    p: '16px',
-                    borderRadius: '8px',
-                    // m: '8px 16px'
-                }}>
-                    <Typography align="center" children={"You Spend"} />
-                    <Typography align="center" fontWeight="bold" children={`Rp. 200.000`} />
-                </Grid>
-                <Grid item xs={6} sx={{
-                    border: '1px solid white',
-                    p: '16px',
-                    borderRadius: '8px',
-                    // m: '8px 16px'
-                }}>
-                    <Typography align="center" children={"You Spend"} />
-                    <Typography align="center" fontWeight="bold" children={`Rp. 200.000`} />
-                </Grid>
-                <Grid item xs={6} sx={{
-                    border: '1px solid white',
-                    p: '16px',
-                    borderRadius: '8px',
-                    // m: '8px 16px'
-                }}>
-                    <Typography align="center" children={"You Spend"} />
-                    <Typography align="center" fontWeight="bold" children={`Rp. 200.000`} />
-                </Grid>
-            </Grid> */}
-            <Grid container spacing={1} p="16px 24px">
+            
+            <Typography textAlign="center" variant="h4">Coming Soon</Typography>
+            {/* <Grid container spacing={1} p="16px 24px">
                 <Grid item xs={6}>
                     <Box sx={{
                         border: '1px solid white',
@@ -95,7 +56,7 @@ const StatsPage = () => {
                     <Typography align="center" fontWeight="bold" children={`Rp. 200.000`} />
                 </Box>
                 </Grid>
-            </Grid>
+            </Grid> */}
         </>
     );
 }
