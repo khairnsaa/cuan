@@ -9,21 +9,21 @@
 }
 
 .newBudgetBtn{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: 0.12rem dashed #fafafa;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  border: 0.12rem dashed #fafafa !important;
   padding: 0.5rem 1.2rem;
-  color: #fafafa;
-  border-radius: 1rem;
+  color: #fafafa !important;
+  border-radius: 1rem !important;
 }
 
 .cardBalance{
-  border: 0.1rem solid #FAFAFA;
+  border: 0.1rem solid #FAFAFA !important;
   border-radius: 0.8rem;
   height: 8.5rem;
-  background-color: #020D16;
-  color: #fafafa;
+  background-color: #020D16 !important;
+  color: #fafafa !important;
   margin: 14px 0;
 }
 
